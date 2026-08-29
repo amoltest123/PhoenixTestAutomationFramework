@@ -1,33 +1,29 @@
 package com.api.tests;
 
-import static org.hamcrest.Matchers.*;
+import static com.api.constant.Role.FD;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.notNullValue;
+
 import org.testng.annotations.Test;
 
+import com.api.utils.SpecUtils;
+
 import io.restassured.module.jsv.JsonSchemaValidator;
-
-import static com.api.constant.Role.*;
-import static com.api.utils.AuthTokenProvider.*;
-import static com.api.utils.ConfigManager.* ;
-
-import static io.restassured.RestAssured.*;
 
 public class MasterAPITest {
 
 	@Test
 	public void msaterAPITest() {
 		given()
-			.baseUri(getProperty("BASE_URI"))
-			.and()
-			.header("Authorization", getToken(FD))
-			.and()
-			.contentType("")
-			.log().all()
+			.spec(SpecUtils.requestSpecWithAuth(FD))
 		.when()
 			.post("master")
 		.then()
-			.log().all()
-			.statusCode(200)
-			.time(lessThan(1000L))
+			.spec(SpecUtils.responseSpec_OK())
 			.body("message", equalTo("Success"))
 			.body("data", notNullValue())
 			.body("data", hasKey("mst_oem"))
@@ -45,15 +41,10 @@ public class MasterAPITest {
 	@Test
 	public void invalidTokenMasterAPITest() {
 		given()
-		.baseUri(getProperty("BASE_URI"))
-		.and()
-		.contentType("")
-		.log().all()
+		.spec(SpecUtils.requestSpec())
 	.when()
 		.post("master")
 	.then()
-		.log().all()
-		.statusCode(401)
-		.time(lessThan(1000L));
+		.spec(SpecUtils.responseSpec_Text(401));
 	}
 }
