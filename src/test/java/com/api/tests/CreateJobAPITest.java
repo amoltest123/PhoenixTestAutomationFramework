@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.startsWith;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.api.constant.Model;
@@ -24,27 +25,32 @@ import com.api.request.models.Customer;
 import com.api.request.models.CustomerAddress;
 import com.api.request.models.CustomerProduct;
 import com.api.request.models.Problems;
-import com.api.utils.SpecUtils;
+import static com.api.utils.SpecUtils.*;
 
 public class CreateJobAPITest {
-
-	@Test
-	public void createJobAPITest() {
-		
+	
+	private CreateJobPayload createJobPayload;
+	
+	@BeforeMethod(description = "Creating createjob api request payload")
+	public void setup() {
 		Customer customer = new Customer("Amol", "Latthe", "9960373464", "", "amollattheict@gmail.com", "");
 		CustomerAddress customerAddress = new CustomerAddress("D 404", "Vasant Galaxy", "Bangur Nagar", "Inorbit", "Mumbai", "411039", "India", "Maharashtra");
 		CustomerProduct customerProduct = new CustomerProduct(getTimeWithDaysAgo(10), "77985487299749", "77985487299749", "77985487299749", getTimeWithDaysAgo(10), Product.NEXUS_2.getCode(), Model.NEXUS_2_BLUE.getCode());
 		Problems problems = new Problems(Problem.SMARTPHONE_IS_RUNNING_SLOW.getCode(), "Battery issue");
 		List<Problems> problemsList = new ArrayList<Problems>();
 		problemsList.add(problems);
-		CreateJobPayload createJobPayload = new CreateJobPayload(ServiceLocation.SERVICE_LOCATION_A.getCode(), Platform.FRONT_DESK.getCode(), Warranty_Status.IN_WARRANTY.getCode(), OEM.GOOGLE.getCode(), customer, customerAddress, customerProduct, problemsList);
+		createJobPayload = new CreateJobPayload(ServiceLocation.SERVICE_LOCATION_A.getCode(), Platform.FRONT_DESK.getCode(), Warranty_Status.IN_WARRANTY.getCode(), OEM.GOOGLE.getCode(), customer, customerAddress, customerProduct, problemsList);
+	}
+
+	@Test(description = "Verifing if the create job API is giving correct responce", groups = {"api", "regression", "smoke"})
+	public void createJobAPITest() {
 		
 		given()
-			.spec(SpecUtils.requestSpecWithAuth(Role.FD, createJobPayload))
+			.spec(requestSpecWithAuth(Role.FD, createJobPayload))
 		.when()
 			.post("/job/create")
 		.then()
-			.spec(SpecUtils.responseSpec_OK())
+			.spec(responseSpec_OK())
 			.body(matchesJsonSchemaInClasspath("response_schema/CreateJobAPIResponseSchema.json"))
 			.body("message", equalTo("Job created successfully. "))
 			.body("data.mst_service_location_id", equalTo(1))

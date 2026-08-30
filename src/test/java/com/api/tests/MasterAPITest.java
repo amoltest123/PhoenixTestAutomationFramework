@@ -10,20 +10,20 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import org.testng.annotations.Test;
 
-import com.api.utils.SpecUtils;
+import static com.api.utils.SpecUtils.*;
 
-import io.restassured.module.jsv.JsonSchemaValidator;
+import static io.restassured.module.jsv.JsonSchemaValidator.*;
 
 public class MasterAPITest {
 
-	@Test
+	@Test(description = "Verify if the Master API response is shown correctly", groups = {"api", "regression", "smoke"})
 	public void msaterAPITest() {
 		given()
-			.spec(SpecUtils.requestSpecWithAuth(FD))
+			.spec(requestSpecWithAuth(FD))
 		.when()
 			.post("master")
 		.then()
-			.spec(SpecUtils.responseSpec_OK())
+			.spec(responseSpec_OK())
 			.body("message", equalTo("Success"))
 			.body("data", notNullValue())
 			.body("data", hasKey("mst_oem"))
@@ -34,17 +34,17 @@ public class MasterAPITest {
 			.body("data.mst_model.size()", greaterThan(0))
 			.body("data.mst_oem.id", everyItem(notNullValue()))
 			.body("data.mst_oem.name", everyItem(notNullValue()))
-			.body(JsonSchemaValidator.matchesJsonSchemaInClasspath("response_schema/MasterAPIResponseSchema.json"));
+			.body(matchesJsonSchemaInClasspath("response_schema/MasterAPIResponseSchema.json"));
 			
 	}
 	
-	@Test
+	@Test(description = "Verify if the Master API response is giving correct status code for the invalid token", groups = {"api", "negate", "regression", "smoke"})
 	public void invalidTokenMasterAPITest() {
 		given()
-		.spec(SpecUtils.requestSpec())
+		.spec(requestSpec())
 	.when()
 		.post("master")
 	.then()
-		.spec(SpecUtils.responseSpec_Text(401));
+		.spec(responseSpec_Text(401));
 	}
 }
