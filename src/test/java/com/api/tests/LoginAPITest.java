@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 import org.testng.annotations.Test;
 
-import com.api.pojos.UserCredentials;
+import com.api.request.models.UserCredentials;
 import com.api.utils.SpecUtils;
 
 public class LoginAPITest {
